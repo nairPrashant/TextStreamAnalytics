@@ -8,6 +8,8 @@ TextStreamAnalytics/StreamProcessing/src/main/resources/data.txt
 TextStreamAnalytics/StreamProcessing/output/out/
 
 ## Algorithm
+TextStreamAnalytics/StreamProcessing/src/main/scala/com/nair/TextStreamAnalytics.scala
+
 1. Read tab-separated data into spark dataframe
 2. Preprocess dataframe: change column types etc.
 3. Define window specification: wf
