@@ -22,20 +22,21 @@ object TextStreamAnalytics {
     val sc=new SparkContext(conf)
     sc.setLogLevel("ERROR")
     val inputFile=Resources.getResource("data.txt").toString.replace("%20"," ")
+    val windowSize=60
     val sqlContext=new HiveContext(sc)
     val df = sqlContext.read.format("com.databricks.spark.csv").option("delimiter", "\t").option("header", "false").load(inputFile)
-    val outputDF=doProcessing(sqlContext,df)
-    outputDF.write.format("com.databricks.spark.csv").option("delimiter", "\t").save("output/output2")
+    val outputDF=doProcessing(sqlContext,df, windowSize)
+    outputDF.write.format("com.databricks.spark.csv").option("delimiter", "\t").save("output/out")
   }
 
-  def doProcessing(sqlContext:SQLContext,df:DataFrame)={
+  def doProcessing(sqlContext:SQLContext,df:DataFrame,windowSize:Int)={
     import sqlContext.implicits._
     val df2=df.withColumn("Time",$"C0".cast(IntegerType))
       .withColumn("Value",$"C1".cast(DoubleType))
       .drop($"C0")
       .drop($"C1")
 
-    val windowFunction = Window.orderBy($"Time").rangeBetween(-60,0)
+    val windowFunction = Window.orderBy($"Time").rangeBetween(-1*windowSize,0)
     val finalDF =df2
       .withColumn("N_O",count($"Value").over(windowFunction))
       .withColumn("Roll_sum",round(sum($"Value").over(windowFunction),5))
